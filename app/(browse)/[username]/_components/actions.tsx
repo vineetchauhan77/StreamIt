@@ -1,6 +1,7 @@
 'use client'
+import { onBlock, onUnblock } from '@/actions/block'
 // import { onBlock } from '@/actions/block'
-import { onFollow } from '@/actions/follow'
+import { onFollow, onUnfollow } from '@/actions/follow'
 import { Button } from '@/components/ui/button'
 import { useTransition } from 'react'
 import { toast } from 'sonner'
@@ -10,7 +11,7 @@ interface ActionProps {
 }
 const Actions = ({ isFollowing, userId }: ActionProps) => {
   const [isPending, startTransition] = useTransition()
-  const onclick = () => {
+  const handleFollow = () => {
     startTransition(() => {
       onFollow(userId)
         .then((data) =>
@@ -19,38 +20,41 @@ const Actions = ({ isFollowing, userId }: ActionProps) => {
         .catch(() => toast.error('Something went wrong'))
     })
   }
-//   const handleUnFollow = () => {
-//     startTransition(() => {
-//       onUnfollow(userId)
-//         .then((data) =>
-//           toast.success(`You have unfollowed ${data.following.username}`),
-//         )
-//         .catch(() => toast.error('Something went wrong'))
-//     })
-//   }
-  // const onClick = () => {
-  //   if (isFollowing) {
-  //     handleUnFollow()
-  //   } else {
-  //     handleFollow()
-  //   }
-  // }
-  // const handleBlock = () => {
-  //   startTransition(() => {
-  //     onBlock(userId)
-  //       .then((data) =>
-  //         toast.success(`Blocked the user ${data?.blocked.username}`),
-  //       )
-  //       .catch(() => toast.error('Something went wrong'))
-  //   })
-  // }
+  const handleUnFollow = () => {
+    startTransition(() => {
+      onUnfollow(userId)
+        .then((data) =>
+          toast.success(`You have unfollowed ${data.following.username}`),
+        )
+        .catch(() => toast.error('Something went wrong'))
+    })
+  }
+  const onClick = () => {
+    if (isFollowing) {
+      handleUnFollow()
+    } else {
+      handleFollow()
+    }
+  }
+  const handleBlock = () => {
+    startTransition(() => {
+      onBlock(userId)
+        .then((data) =>
+          toast.success(`Blocked the user ${data?.blocked.username}`),
+        )
+        .catch(() => toast.error('Something went wrong'))
+    })
+  }
   return (
     <>
       <Button
-      disabled={isFollowing || isPending}
-       onClick={onclick}
+      disabled={  isPending}
+       onClick={onClick}
        variant="primary" >
-        Follow
+        {isFollowing ? "Unfollow" : "Follow"}
+      </Button>
+      <Button onClick={handleBlock} disabled={isPending}>
+        Block
       </Button>
     </>
   )
